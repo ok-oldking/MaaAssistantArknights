@@ -477,7 +477,7 @@ bool asst::BattleHelper::retreat_oper(const Point& loc, bool manually)
     return true;
 }
 
-bool asst::BattleHelper::is_skill_ready(const Point& loc, const cv::Mat& reusable)
+bool asst::BattleHelper::is_skill_ready(const Point& loc, const cv::Mat& reusable, const bool& save_ready_img)
 {
     cv::Mat image = reusable.empty() ? m_inst_helper.ctrler()->get_image() : reusable;
     BattlefieldClassifier skill_analyzer(image);
@@ -491,7 +491,15 @@ bool asst::BattleHelper::is_skill_ready(const Point& loc, const cv::Mat& reusabl
     const Point& battlefield_point = target_iter->second.pos;
     skill_analyzer.set_base_point(battlefield_point);
 
-    return skill_analyzer.analyze()->skill_ready.ready;
+    if (skill_analyzer.analyze()->skill_ready.ready) {
+        if (save_ready_img) {
+            skill_analyzer.save_img(utils::path("debug") / utils::path("skillReady"));
+        }
+        return true;
+    }
+    else {
+        return false;
+    }
 }
 
 bool asst::BattleHelper::is_skill_ready(const std::string& name, const cv::Mat& reusable)
@@ -623,7 +631,7 @@ bool asst::BattleHelper::use_all_ready_skill(const cv::Mat& reusable)
             continue;
         }
 
-        if (!is_skill_ready(loc, image)) {
+        if (!is_skill_ready(loc, image, !used && now - last_use_time >= min_frame_interval)) {
             continue;
         }
 
