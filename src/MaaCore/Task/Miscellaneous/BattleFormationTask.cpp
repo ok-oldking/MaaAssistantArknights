@@ -429,9 +429,11 @@ void asst::BattleFormationTask::swipe_page()
 
 void asst::BattleFormationTask::swipe_to_the_left(int times)
 {
+    const int delay = Task.get("BattleFormationOperListSlowlySwipeToTheRight")->post_delay;
     for (int i = 0; i < times; ++i) {
         ProcessTask(*this, { "BattleFormationOperListSwipeToTheLeft" }).run();
     }
+    sleep(delay);
 }
 
 bool asst::BattleFormationTask::confirm_selection()
